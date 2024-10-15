@@ -34,7 +34,7 @@ app.post("/movies", async (req, res) => {
         })
 
         if(movieWithSameTitle) {
-            return res.status(409).send({message: "Já existe um filme cadastrado com esse título"})
+            res.status(409).send({message: "Já existe um filme cadastrado com esse título"})
         }
 
         await prisma.movie.create({
@@ -47,10 +47,26 @@ app.post("/movies", async (req, res) => {
             }
         })
     } catch (error) {
-        return res.status(500).send({message: "Falha ao cadastrar um filme"})
+        res.status(500).send({message: "Falha ao cadastrar um filme"})
     }
 
-    res.status(201).send()
+    res.status(201).json()
+})
+
+app.put('/movies/:id', async (req, res) => {
+    // pegar o id do registro que vai ser atualizado
+    const id = Number(req.params.id)
+    // pegar os dados do filme que será atualizado e atualizar ele no prisma
+    const movie = await prisma.movie.update({
+        where: {
+            id
+        },
+        data: {
+            release_date: new Date(req.body.release_date)
+        }
+    })
+    // retornar o status correto informando que o filme foi atualizado
+    res.status(200).send()
 })
 
 app.listen(port, () => {
